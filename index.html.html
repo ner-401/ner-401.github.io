@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>人工智能通识 | KNN算法与数据科学实战</title>
+    <!-- 学术风格字体：衬线标题 + 现代无衬线正文 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Hero 区块 */
+        .hero {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e9eff5 100%);
+            padding: 4rem 0 5rem 0;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero:before {
+            content: "📐";
+            font-size: 180px;
+            opacity: 0.05;
+            position: absolute;
+            bottom: -30px;
+            right: -20px;
+            font-family: monospace;
+            pointer-events: none;
+            transform: rotate(5deg);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 780px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: #2c3e66;
+            color: #f0f4fa;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.2rem;
+            font-weight: 600;
+            color: #0f172a;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(120deg, #2c3e66, #4f6f8f);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #334155;
+            max-width: 650px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #cbd5e1;
+            padding-left: 1.2rem;
+            font-weight: 400;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .hero-meta i {
+            margin-right: 0.4rem;
+            color: #4f6f8f;
+        }
+
+        /* 竖向模块样式 */
+        .resource-module {
+            background: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 2.5rem;
+            padding: 1.8rem 2rem;
+            transition: all 0.2s ease;
+        }
+
+        .resource-module:hover {
+            box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e6;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 2px solid #eef2f8;
+            padding-bottom: 0.8rem;
+        }
+
+        .module-icon {
+            font-size: 2rem;
+            color: #2c3e66;
+        }
+
+        .module-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #0f172a;
+            letter-spacing: -0.3px;
+        }
+
+        .module-intro {
+            color: #475569;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.8rem;
+            padding-left: 0.2rem;
+            border-left: 3px solid #e2e8f0;
+            padding-left: 1rem;
+        }
+
+        .download-area {
+            background: #f9fbfd;
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border: 1px solid #edf2f7;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .file-icon {
+            font-size: 1.8rem;
+            color: #6c8fb0;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1rem;
+            background: #f1f5f9;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-family: monospace;
+            letter-spacing: -0.2px;
+        }
+
+        .download-link {
+            background: #2c3e66;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.4rem;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .download-link:hover {
+            background: #1e2f4b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .download-link i {
+            font-size: 0.9rem;
+        }
+
+        /* 学习陪伴栏（保留温暖氛围） */
+        .study-note {
+            background: #f1f6fe;
+            border-radius: 1.2rem;
+            padding: 1.6rem 2rem;
+            margin: 2rem 0 1rem;
+            border-left: 5px solid #2c3e66;
+        }
+
+        .study-note h4 {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #0f172a;
+        }
+
+        .study-note p {
+            color: #2c3e66b3;
+            font-size: 0.9rem;
+        }
+
+        /* 脚注 */
+        .footer-note {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem 1rem 3rem;
+            border-top: 1px solid #e2e8f0;
+            color: #5b6e8c;
+            font-size: 0.85rem;
+        }
+
+        .footer-note a {
+            color: #2c3e66;
+            text-decoration: none;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+
+        .footer-note a:hover {
+            color: #1f2f4d;
+        }
+
+        .accent-dot {
+            width: 6px;
+            height: 6px;
+            background: #cbd5e1;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 6px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+            .module-title {
+                font-size: 1.5rem;
+            }
+            .download-area {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .resource-module {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 学术英雄区，温暖开场 -->
+<section class="hero">
+    <div class="container hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-graduation-cap"></i> 智能计算实验室 · 共享资源
+        </div>
+        <h1>探索 <span>KNN 算法</span> <br>从理论到温暖的实战旅程</h1>
+        <p>严谨的学术资料 · 泰坦尼克号数据科学项目 · 体系化课后练习<br>让每一次学习都落在实处，链接知识群岛。</p>
+        <div class="hero-meta">
+            <span><i class="fas fa-tasks"></i> 课后巩固</span>
+            <span><i class="fas fa-check-circle"></i> 答案解析</span>
+            <span><i class="fas fa-code-branch"></i> 实战项目</span>
+            <span><i class="fas fa-book-open"></i> 经典文献</span>
+            <span><i class="fas fa-heart" style="color:#c45b5b;"></i> 有温度的学术社区</span>
+        </div>
+    </div>
+</section>
+
+<main>
+    <div class="container">
+        <!-- 四个竖向模块：顺序 课后练习 → 课后答案 → 泰坦尼克号实战 → KNN算法文献 -->
+        
+        <!-- 模块1：课后练习 -->
+        <div class="resource-module" id="module-exercise">
+            <div class="module-header">
+                <div class="module-icon"><i class="fas fa-pen-fancy"></i></div>
+                <h2 class="module-title">课后练习 · 算法巩固</h2>
+            </div>
+            <div class="module-intro">
+                本套习题聚焦 K 近邻算法的核心原理、距离度量、K 值选择、特征标准化以及手写实现。包含编程实践题与理论分析，帮助夯实基础，培养算法直觉。建议独立完成后再对照答案深入理解。
+            </div>
+            <div class="download-area">
+                <div class="file-info">
+                    <i class="fas fa-file-pdf file-icon"></i>
+                    <span class="file-name">课后练习_KNN专题.word</span>
+                </div>
+                <a href="#" class="download-link" id="download-exercise" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-cloud-download-alt"></i> 网盘下载
+                </a>
+            </div>
+        </div>
+
+        <!-- 模块2：课后练习答案 -->
+        <div class="resource-module" id="module-answer">
+            <div class="module-header">
+                <div class="module-icon"><i class="fas fa-check-circle"></i></div>
+                <h2 class="module-title">课后练习答案 · 精析</h2>
+            </div>
+            <div class="module-intro">
+                提供每一道习题的详细解答、扩展思考。从距离加权到决策边界可视化，帮助你精准定位知识盲区，让练习真正内化为能力。
+            </div>
+            <div class="download-area">
+                <div class="file-info">
+                    <i class="fas fa-file-alt file-icon"></i>
+                    <span class="file-name">课后练习答案与详解.word</span>
+                </div>
+                <a href="#" class="download-link" id="download-answer" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-cloud-download-alt"></i> 网盘下载
+                </a>
+            </div>
+        </div>
+
+        <!-- 模块3：泰坦尼克号实战项目 -->
+        <div class="resource-module" id="module-titanic">
+            <div class="module-header">
+                <div class="module-icon"><i class="fas fa-ship"></i></div>
+                <h2 class="module-title">泰坦尼克号 · 生存预测实战</h2>
+            </div>
+            <div class="module-intro">
+                基于 Kaggle 经典竞赛的数据科学项目，包含完整的数据清洗、特征工程、KNN 分类建模及模型评估。适合将理论知识应用于真实场景，体验完整的数据科学流程。
+            </div>
+            <div class="download-area">
+                <div class="file-info">
+                    <i class="fas fa-folder-open file-icon"></i>
+                    <span class="file-name">titanic_project.zip (代码+数据)</span>
+                </div>
+                <a href="#" class="download-link" id="download-titanic" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-cloud-download-alt"></i> 网盘下载
+                </a>
+            </div>
+        </div>
+
+        <!-- 模块4：KNN算法应用文献 -->
+        <div class="resource-module" id="module-knn">
+            <div class="module-header">
+                <div class="module-icon"><i class="fas fa-file-alt"></i></div>
+                <h2 class="module-title">KNN算法应用文献</h2>
+            </div>
+            <div class="module-intro">
+                精选近五年 KNN 算法在医学影像、文本分类、推荐系统等领域的前沿综述与应用论文，帮助开拓学术视野，理解算法在不同场景中的演进与优化。
+            </div>
+            <div class="download-area">
+                <div class="file-info">
+                    <i class="fas fa-file-pdf file-icon"></i>
+                    <span class="file-name">KNN_Applications_Literature.pdf</span>
+                </div>
+                <a href="#" class="download-link" id="download-knn" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-cloud-download-alt"></i> 网盘下载
+                </a>
+            </div>
+        </div>
+
+        <!-- 温暖陪伴提示模块 -->
+        <div class="study-note">
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <i class="fas fa-hands-helping" style="font-size: 2rem; color:#2c3e66;"></i>
+                <div>
+                    <h4>学习陪伴 · 学术温度</h4>
+                    <p>所有资料均提供网盘高速通道，若链接失效请联系助教。推荐学习顺序：先完成课后练习巩固基础，再结合答案自查，随后挑战泰坦尼克实战，最后深入KNN文献研读。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="footer-note">
+    <div class="container">
+        <i class="fas fa-graduation-cap"></i> 机器学习研习社 · 智慧共享 <span class="accent-dot"></span> 基于学术开放精神设计 
+        <span class="accent-dot"></span> 资料版本: 2025春季更新 <br>
+        如有疑问请联系 <a href="#">learning@ml-lab.edu</a> | 点击上方“网盘下载”获取对应资源
+    </div>
+</footer>
+
+<script>
+    // ====================================================
+    // 资源链接配置区（请替换为真实网盘地址）
+    // 四个模块各自唯一的下载链接，格式统一为网盘直链或分享页
+    // ====================================================
+    const DOWNLOAD_LINKS = {
+        exercise: "https://pan.baidu.com/s/1kEbD88EewxijHgmwSktPvQ?pwd=d9sw ",   // 课后练习
+        answer: "https://pan.baidu.com/s/1RTX-Ff37lG7QSPivylvFrw?pwd=us97",  // 课后答案
+        titanic: "https://pan.baidu.com/s/170dyv4k5PY8Qniji7-VnJA?pwd=jp46 ",    // 泰坦尼克项目
+        knn: "https://pan.baidu.com/s/1z_mdyEBX7DhqSH6GPRm4Tg?pwd=7c9t"                // KNN文献
+    };
+
+    // 绑定四个下载按钮
+    document.getElementById('download-exercise').href = DOWNLOAD_LINKS.exercise;
+    document.getElementById('download-answer').href = DOWNLOAD_LINKS.answer;
+    document.getElementById('download-titanic').href = DOWNLOAD_LINKS.titanic;
+    document.getElementById('download-knn').href = DOWNLOAD_LINKS.knn;
+
+    // 控制台友好提醒替换链接
+    function checkPlaceholders() {
+        let hasExample = false;
+        for (let key in DOWNLOAD_LINKS) {
+            if (DOWNLOAD_LINKS[key] && DOWNLOAD_LINKS[key].includes('example')) {
+                hasExample = true;
+                break;
+            }
+        }
+        if (hasExample) {
+            console.log("📘【学术资源库提示】当前网盘链接为示例占位，请根据实际情况在代码 DOWNLOAD_LINKS 对象中替换为真实网盘地址。");
+        }
+    }
+    checkPlaceholders();
+</script>
+</body>
+</html>
